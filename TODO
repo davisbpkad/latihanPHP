@@ -1,0 +1,4 @@
+- static class implementation (Math class example)
+- property promtion
+- getter setters / __get(), __set()
+- toString(), __destruct()
