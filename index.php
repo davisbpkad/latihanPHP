@@ -1,96 +1,85 @@
-<?php
+<!-- penerapan login dengan session dan cookie -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login With Session</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <?php
+    date_default_timezone_set('Asia/Jakarta'); // Set timezone ke UTC+7
+    session_start();
 
-// constants
-const PI = 3.14159; // constant
+    // Proses login
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+        // Hanya username dan password 'admin' yang valid
+        if ($username === 'admin' && $password === 'admin') {
+            $_SESSION['user'] = [
+                'username' => $username
+            ];
+            setcookie('username', $username, time() + 60, '/'); // Cookie berlaku 60 detik
+            header("Location: index.php");
+            exit;
+        } else {
+            $error = "Username atau Password salah!";
+        }
+    }
 
-// variables
-$name = "John Doe"; // string
-$age = 30; // number
-$height = 175.4; // float
-$isMarried = true; // boolean
-$money = null; // null
+    // Proses logout
+    if (isset($_GET['logout'])) {
+        session_destroy();
+        header("Location: index.php");
+        exit;
+    }
 
-$age = '30';
+    // Ambil value cookie untuk field username
+    $cookie_username = $_COOKIE['username'] ?? '';
+    ?>
 
-// indexed array
-$hobbies = ["reading", "traveling", "gaming"]; // array
-// $hobbies = array("reading", "traveling", "gaming"); // alternative array syntax
-// echo $hobbies[1];
+    <div class="container min-vh-100 d-flex justify-content-center align-items-center">
+        <div class="w-100" style="max-width: 400px;">
+            <div class="text-center mb-3">
+                <small class="text-muted">
+                    Waktu Server (WIB): <?php echo date('Y-m-d H:i:s'); ?>
+                </small>
+            </div>
+        <?php if (isset($_SESSION['user'])): ?>
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h1 class="h4 mb-3">Selamat datang, <?php echo htmlspecialchars($_SESSION['user']['username']); ?>!</h1>
+                    <a href="index.php?logout=1" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="h5 mb-4 text-center">Login</h2>
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger" role="alert"><?php echo $error; ?></div>
+                    <?php endif; ?>
+                    <form action="index.php" method="post">
+                        <div class="mb-3">
+                            <input type="text" name="username" class="form-control" placeholder="Username" value="<?php echo htmlspecialchars($cookie_username); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Password">
+                        </div>
+                        <div class="d-grid">
+                            <input type="submit" value="Login" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+        </div>
+    </div>
 
-// associative array
-$person = [
-  "name" => "Jane Doe",
-  "age" => 28,
-  "city" => "New York"
-];
-
-// echo $person["name"];
-
-// multi-dimensional array
-$contacts = [
-  "friends" => [
-    ["name" => "Alice", "phone" => "123-456-7890"],
-    ["name" => "Bob", "phone" => "987-654-3210"]
-  ],
-  "family" => [
-    ["name" => "Charlie", "phone" => "555-555-5555"],
-    ["name" => "Diana", "phone" => "444-444-4444"]
-  ]
-];
-
-// echo $contacts['family'][0]['phone'];
-print_r($contacts);
-
-// echo "Hello, my name is $name and I am $age years old.";
-
-// object (dynamic properties)
-$personObject = new stdClass(); // instantiation
-$personObject->name = "Alice"; // personObject.name
-$personObject->age = 25;
-$personObject->city = "Los Angeles";
-
-print_r($personObject->address);
-
-// oprations
-// arithmetic operations
-$sum = 10 + 5; // addition
-$difference = 10 - 5; // subtraction
-$product = 10 * 5; // multiplication
-$quotient = 10 / 5; // division
-$remainder = 10 % 3; // modulus
-$power = 2 ** 3; // 2 raised to the power of 3  
-
-// assignment operations
-$x = 10; // assignment
-$x += 5; // equivalent to $x = $x + 5; (addition assignment)
-$x -= 3; // equivalent to $x = $x - 3; (subtraction assignment)
-$x *= 2; // equivalent to $x = $x * 2; (multiplication assignment)
-$x /= 4; // equivalent to $x = $x / 4; (division assignment)
-$x %= 3; // equivalent to $x = $x % 3; (modulus assignment)
-$x **= 2; // equivalent to $x = $x ** 2; (exponentiation assignment)
-
-// comparison operations
-$isEqual = (10 == 10); // equal
-$isNotEqual = (10 != 5); // not equal
-$isIdentical = (10 === 10); // identical (same value and type)
-$isNotIdentical = (10 !== "10"); // not identical (different type)
-$isGreater = (10 > 5); // greater than
-$isLess = (5 < 10); // less than
-$isGreaterOrEqual = (10 >= 10); // greater than or equal to
-$isLessOrEqual = (5 <= 10); // less than or equal to
-
-// logical operations
-$and = (true && false); // logical AND
-$or = (true || false); // logical OR
-$not = !true; // logical NOT
-
-// string operations
-$greeting = "Hello, " . $name; // concatenation //  "Hello" + " John Doe"
-// $length = strlen($greeting); // string length
-// $upperCase = strtoupper($greeting); // convert to uppercase
-// $lowerCase = strtolower($greeting); // convert to lowercase
-// $substring = substr($greeting, 0, 5); // get substring
-// $replaced = str_replace("John", "Jane", $greeting); // replace substring
-
-echo PI;
-echo $personObject->address;
+    <!-- Bootstrap JS (optional, for interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
